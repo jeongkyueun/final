@@ -1,7 +1,9 @@
 package com.example.guru2_team4
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import java.security.KeyStore.TrustedCertificateEntry
@@ -12,6 +14,9 @@ class DBHelper(context: Context) :
     // users 테이블 생성
     override fun onCreate(MyDB: SQLiteDatabase?) {
         MyDB!!.execSQL("create Table users(id TEXT primary key, password TEXT, nick TEXT, phone TEXT)")
+        //kyueun추가
+        MyDB!!.execSQL("create Table PartPage(partName TEXT primary key, url TEXT)")
+//kyueun추가끝
     }
 
     // 정보 갱신
@@ -63,9 +68,30 @@ class DBHelper(context: Context) :
     }
 
     // DBHelper 클래스에 getUserNickname 함수 추가
+    @SuppressLint("Range")
     fun getUserNickname(id: String): String? {
         val MyDB = this.readableDatabase
         val cursor = MyDB.rawQuery("Select nick from users where id =?", arrayOf(id))
+
+        return if (cursor.moveToFirst()) {
+            val columnIndex = cursor.getColumnIndex("nick")
+
+            // 컬럼이 존재하는 경우에만 값을 반환
+            if (columnIndex >= 0) {
+                val nickname = cursor.getString(columnIndex)
+                cursor.close()
+                nickname
+            } else {
+                cursor.close()
+                null
+            }
+        } else {
+            cursor.close()
+            null
+        }
+
+        val MyDB2 = this.readableDatabase
+        val cursor2 = MyDB.rawQuery("Select nick from users where id =?", arrayOf(id))
 
         return if (cursor.moveToFirst()) {
             val nickname = cursor.getString(cursor.getColumnIndex("nick"))
@@ -75,6 +101,7 @@ class DBHelper(context: Context) :
             cursor.close()
             null
         }
+
     }
 
 
@@ -82,6 +109,54 @@ class DBHelper(context: Context) :
     companion object {
         const val DBNAME = "Login.db"
     }
+//
+
+    //kyueun/////////////////////////////////////////////////////
+    // PartPage 테이블 생성
+
+
+    // PartPage 테이블에 URL 추가
+    fun insertPartUrl(partName: String?, url: String?): Boolean {
+        val MyDB = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put("partName", partName)
+        contentValues.put("url", url)
+        val result = MyDB.insert("PartPage", null, contentValues)
+        MyDB.close()
+        return if (result == -1L) false else true
+    }
+
+    // PartPage 테이블에서 URL 가져오기
+    @SuppressLint("Range")
+    fun getPartUrl(partName: String): String? {
+        val MyDB = this.readableDatabase
+        val cursor = MyDB.rawQuery("Select url from PartPage where partName =?", arrayOf(partName))
+
+        return if (cursor.moveToFirst()) {
+            val url = cursor.getString(cursor.getColumnIndex("url"))
+            cursor.close()
+            url
+        } else {
+            cursor.close()
+            null
+        }
+    }
+
+    // DBHelper 클래스 내의 특정 메서드에서 사용하는 예제 코드
+    fun getUrlFromCursor(cursor: Cursor): String? {
+        val urlColumnIndex = cursor.getColumnIndex("url")
+
+        return if (urlColumnIndex >= 0) {
+            // 컬럼이 존재하는 경우에만 값을 가져옴
+            cursor.getString(urlColumnIndex)
+        } else {
+            // 컬럼이 존재하지 않는 경우 처리
+            // 예를 들어, 기본값을 설정하거나 에러를 처리할 수 있음
+            null
+        }
+    }
+
+    //kyueun끝
 
 
 

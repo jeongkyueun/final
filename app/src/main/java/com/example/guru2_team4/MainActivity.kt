@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
-    lateinit var btnLogin: ImageButton
+    lateinit var btnLogin: Button
     lateinit var editTextId: EditText
     lateinit var editTextPassword: EditText
     lateinit var btnRegister: ImageButton
@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity() {
         editTextId = findViewById(R.id.editTextId)
         editTextPassword = findViewById(R.id.editTextPassword)
         btnRegister = findViewById(R.id.btnRegister)
+
+
 
         // 로그인 버튼 클릭
         btnLogin.setOnClickListener {
